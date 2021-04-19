@@ -24,7 +24,8 @@ def load_data(database_filepath):
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.DataFrame(engine.execute("SELECT * FROM DisasterResponseData").fetchall())
     df.columns = engine.execute("SELECT * FROM DisasterResponseData").keys()
-
+    
+    # Assign predictor variables (messages) to X, outcome variables (categories) to y
     X = df['message'].values
     y = df.drop(columns=['id', 'message', 'original', 'genre'])
     category_names = y.columns.values
@@ -32,6 +33,7 @@ def load_data(database_filepath):
     return X, y, category_names
     
 def tokenize(text):
+    # Convert message strings to clean list of lemmatized words
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -44,6 +46,7 @@ def tokenize(text):
 
 
 def build_model():
+    # define pipeline that transforms tokenized words to a binary matrix
     model = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -53,12 +56,14 @@ def build_model():
     return model
 
 def evaluate_model(model, X_test, y_test, category_names):
+    # use fitted model to predict y values based on test predictors, then evaluate performance
     y_pred = pd.DataFrame(model.predict(X_test))
     y_pred.columns = category_names
     print(classification_report(y_test, y_pred, target_names=category_names))
 
 
 def save_model(model, model_filepath):
+    # save model to pickle
     pickle.dump(model, open(model_filepath, 'wb'))
 
 def main():
