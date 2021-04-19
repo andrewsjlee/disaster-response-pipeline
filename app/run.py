@@ -1,75 +1,120 @@
-import sys
+import json
+import plotly
 import pandas as pd
+
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+
+from flask import Flask
+from flask import render_template, request, jsonify
+from plotly.graph_objs import Bar
+from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
-def load_data(messages_filepath, categories_filepath):
-    # read in messages and categories data
-    messages = pd.read_csv(messages_filepath)
-    categories = pd.read_csv(categories_filepath)
-    
-    # merge messages and categories data into a single dataframe
-    df = messages.merge(categories, how='left', on='id')
-    
-    return df
 
-def clean_data(df):
-    # split category values into separate columns and save to new dataframe
-    df_cat = df['categories'].str.split(';', expand=True)
-    
-    # select first row of the categories dataframe and remove the trailing digits
-    row = df_cat.iloc[0]
-    category_colnames = row.apply(lambda x: x[0:-2])
-    
-    # assign the clean column names to df_cat
-    df_cat.columns = category_colnames
+app = Flask(__name__)
 
-    for column in df_cat:
-        # set each value to be the last character of the string
-        df_cat[column] = df_cat[column].str[-1:]
-        # convert column from string to numeric
-        df_cat[column] = df_cat[column].astype(int)
+def tokenize(text):
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
 
-    # drop the earlier categories column from main dataframe
-    df = df.drop(columns='categories')
-    
-    # concatenate the cleaned category data to the main dataframe
-    df = pd.concat([df, df_cat], axis=1)
+    clean_tokens = []
+    for tok in tokens:
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tokens.append(clean_tok)
 
-    # drop duplicate rows
-    df = df.drop_duplicates() 
+    return clean_tokens
+
+# load data
+engine = create_engine('sqlite:///data/DisasterResponse.db')
+df = pd.read_sql_table('DisasterResponseData', engine)
+
+# load model
+model = joblib.load("./models/classifier.pkl")
+
+
+# index webpage displays cool visuals and receives user input text for model
+@app.route('/')
+@app.route('/index')
+def index():
     
-    return df
+    # extract data needed for visuals
+    genre_counts = df.groupby('genre').count()['message']
+    genre_names = list(genre_counts.index)
+
+    category_counts = df.iloc[:,4:].sum()
+    category_names = list(df.iloc[:,4:].columns.values)
     
-def save_data(df, database_filename):
-    # save cleaned data to a database that can be read into the ML pipeline    
-    engine = create_engine('sqlite:///{}'.format(database_filename))
-    df.to_sql('DisasterResponseData', engine, index=False, if_exists='replace')  
+    # create visuals
+    # TODO: Below is an example - modify to create your own visuals
+    graphs = [
+        {
+            'data': [
+                Bar(
+                    x=genre_names,
+                    y=genre_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Genres',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_counts,
+                    y=category_names,
+                    orientation ='h'
+                )
+            ],
+            
+            'layout': {
+                'title': 'Count of Message Categories',
+                'yaxis': {
+                    'title': 'Category'
+                },
+                'xaxis': {
+                    'title': 'Count'
+                }
+            }
+        }
+    ]
+    
+    # encode plotly graphs in JSON
+    ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
+    graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    # render web page with plotly graphs
+    return render_template('master.html', ids=ids, graphJSON=graphJSON)
+
+
+# web page that handles user query and displays model results
+@app.route('/go')
+def go():
+    # save user input in query
+    query = request.args.get('query', '') 
+
+    # use model to predict classification for query
+    classification_labels = model.predict([query])[0]
+    classification_results = dict(zip(df.columns[4:], classification_labels))
+
+    # This will render the go.html Please see that file. 
+    return render_template(
+        'go.html',
+        query=query,
+        classification_result=classification_results
+    )
 
 
 def main():
-    if len(sys.argv) == 4:
-
-        messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
-
-        print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
-              .format(messages_filepath, categories_filepath))
-        df = load_data(messages_filepath, categories_filepath)
-
-        print('Cleaning data...')
-        df = clean_data(df)
-        
-        print('Saving data...\n    DATABASE: {}'.format(database_filepath))
-        save_data(df, database_filepath)
-        
-        print('Cleaned data saved to database!')
-    
-    else:
-        print('Please provide the filepaths of the messages and categories '\
-              'datasets as the first and second argument respectively, as '\
-              'well as the filepath of the database to save the cleaned data '\
-              'to as the third argument. \n\nExample: python process_data.py '\
-              'disaster_messages.csv disaster_categories.csv '\
-              'DisasterResponse.db')
+    app.run(host='0.0.0.0', port=3001, debug=True)
 
 
 if __name__ == '__main__':
