@@ -18,19 +18,19 @@ This code was written as part of Udacity's Data Science Nanodegree program.
 The objective was to demonstrate how to 1) implement an ETL workflow and store the data in a SQL database, 2) develop a machine learning classifier model that uses pipelines to streamline the data transformation process, and 3) output the model to an interactive web page.
 
 # File Descriptions
-- app
-| - template
-| |- master.html  # main page of web app
-| |- go.html  # classification result page of web app
-|- run.py  # Flask file that runs app
+* app
+  * template
+    * master.html  # main page of web app
+    * go.html  # classification result page of web app
+  * run.py  # Flask file that runs app
 
-- data
-|- disaster_categories.csv  # data to process 
-|- disaster_messages.csv  # data to process
-|- process_data.py
+* data
+  * disaster_categories.csv  # data to process 
+  * disaster_messages.csv  # data to process
+  * process_data.py
 
-- models
-|- train_classifier.py
+* models
+  * train_classifier.py
 
 # Contact Me
 Feedback and suggestions are always welcome: andrewsungjaelee@gmail.com
