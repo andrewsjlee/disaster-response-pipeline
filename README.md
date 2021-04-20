@@ -18,8 +18,10 @@ To run the program, download the files and run the following commands from the r
 Then, to run the ML model, run the following command:
 - python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
 
-To deploy the web app, run the following command:
+To deploy the web app, run the following command from the app directory:
 - python run.py
+
+Then go to http://0.0.0.0:3001/
 
 # Project Motivation and Summary
 This code was written as part of Udacity's Data Science Nanodegree program. 
