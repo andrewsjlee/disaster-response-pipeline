@@ -20,6 +20,15 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 
 def load_data(database_filepath):
+    '''
+    INPUT
+    database_filepath - path for database file generated in the 'process_data.py' script
+    
+    OUTPUT
+    list of messages (X) and corresponding categories (y) and category names
+    
+    This function extracts data from the database and splits it out into messages and categories data 
+    '''
     # load data from database
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.DataFrame(engine.execute("SELECT * FROM DisasterResponseData").fetchall())
@@ -33,6 +42,15 @@ def load_data(database_filepath):
     return X, y, category_names
     
 def tokenize(text):
+    '''
+    INPUT
+    text - text tokens
+    
+    OUTPUT
+    clean_tokens - text tokens that are lemmatized, converted to lowercase, and stripped of whitespace
+    
+    This function, which tokenizes text strings, is an input to the CountVectorizer class 
+    '''
     # Convert message strings to clean list of lemmatized words
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
