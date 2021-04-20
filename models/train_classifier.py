@@ -64,6 +64,15 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    INPUT
+    none
+    
+    OUTPUT
+    model - model that integrates CountVectorizer, TfidfTransformer, and RandomForest using Pipeline
+    
+    This function is used to instantiate the model which can then be fit to the text data
+    '''
     # define pipeline that transforms tokenized words to a binary matrix
     model = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -74,6 +83,19 @@ def build_model():
     return model
 
 def evaluate_model(model, X_test, y_test, category_names):
+    '''
+    INPUT
+    model - output from build_model() function
+    X_test - test predictors
+    y_test - test outcome data
+    category names - category names
+    
+    OUTPUT
+    y_pred - data outputted from the model
+    classification report showing precision, recall, and f-1 scores
+    
+    This function will generate the y_pred data and provide the performance of the fitted model by comparing y_pred to y_test
+    '''
     # use fitted model to predict y values based on test predictors, then evaluate performance
     y_pred = pd.DataFrame(model.predict(X_test))
     y_pred.columns = category_names
