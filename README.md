@@ -1,6 +1,8 @@
 # Disaster Response Pipeline
 Set of Python scripts and html files that implement an ML model that classifies tweets in a disaster area to help inform response efforts, outputting the model to an interactive web page.
 
+Link to Github: https://github.com/andrewsjlee/disaster-response-pipeline
+
 # Installation
 The scripts were built on Python 3.8.5
 
