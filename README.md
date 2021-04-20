@@ -12,6 +12,15 @@ The following libraries were used:
 - sqlalchemy
 - pickle
 
+To run the program, download the files and run the following commands from the root directory:
+- python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db
+
+Then, to run the ML model, run the following command:
+- python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
+
+To deploy the web app, run the following command:
+- python run.py
+
 # Project Motivation and Summary
 This code was written as part of Udacity's Data Science Nanodegree program. 
 
