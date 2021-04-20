@@ -3,7 +3,16 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
-    # read in messages and categories data
+    '''
+    INPUT
+    messages_filepath - path for 'disaster_messages.csv' file
+    categories_filepath - path for 'disaster_categories.csv' file
+    
+    OUTPUT
+    dataframe with merged messages data
+    
+    This function reads in the messages and categories data
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     
@@ -13,6 +22,15 @@ def load_data(messages_filepath, categories_filepath):
     return df
 
 def clean_data(df):
+    '''
+    INPUT
+    df - output from load_data function
+    
+    OUTPUT
+    dataframe with cleaned category data
+    
+    This function cleans the messages data and prepares it for the database 
+    '''
     # split category values into separate columns and save to new dataframe
     df_cat = df['categories'].str.split(';', expand=True)
     
@@ -41,6 +59,16 @@ def clean_data(df):
     return df
     
 def save_data(df, database_filename):
+    '''
+    INPUT
+    df - output from clean_data function
+    database_filename - desired name of database
+    
+    OUTPUT
+    dataframe with cleaned category data
+    
+    This function takes the cleaned data and outputs a .db file
+    '''
     # save cleaned data to a database that can be read into the ML pipeline    
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('DisasterResponseData', engine, index=False, if_exists='replace')  
