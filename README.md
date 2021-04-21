@@ -21,7 +21,7 @@ Then, to run the ML model, run the following command:
 - python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
 
 To deploy the web app, run the following command from the app directory:
-- python run.py
+- python app/run.py
 
 Then go to http://0.0.0.0:3001/
 
