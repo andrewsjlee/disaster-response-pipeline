@@ -77,7 +77,7 @@ def build_model():
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(RandomForestClassifier(min_samples_split = 50, n_estimators=200, n_jobs=-1)))
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
         ])
 
     parameters = {
