@@ -120,8 +120,6 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, y, category_names = load_data(database_filepath)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-        y_test = y_test.replace(2, 1)
-        y_train = y_train.replace(2, 1)
         
         print('Building model...')
         model = build_model()
