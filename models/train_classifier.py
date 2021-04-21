@@ -69,17 +69,25 @@ def build_model():
     none
     
     OUTPUT
-    model - model that integrates CountVectorizer, TfidfTransformer, and RandomForest using Pipeline
+    model - model that integrates CountVectorizer, TfidfTransformer, and RandomForest using Pipeline and selects model parameters using GridSearch
     
     This function is used to instantiate the model which can then be fit to the text data
     '''
     # define pipeline that transforms tokenized words to a binary matrix
-    model = Pipeline([
+    pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier(min_samples_split = 50, n_estimators=200, n_jobs=-1)))
         ])
 
+    parameters = {
+    'clf__estimator__min_samples_split': [25, 50],
+    'clf__estimator__n_estimators': [100, 200]
+    }
+    
+    # use Grid Search to find optimal parameters
+    model = GridSearchCV(pipeline, param_grid=parameters, verbose=1, n_jobs= -1, cv=3)
+    
     return model
 
 def evaluate_model(model, X_test, y_test, category_names):
